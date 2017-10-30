@@ -4,9 +4,13 @@
 // </copyright>
 //------------------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
+using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
+using NuGet.VisualStudio;
 
 namespace ConfigTransSourceNupkgConfigModPreserver
 {
@@ -33,6 +37,12 @@ namespace ConfigTransSourceNupkgConfigModPreserver
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
     public sealed class ConfigTransSourceNupkgConfigModPreserver : Package
     {
+        private IVsPackageInstallerProjectEvents packageInstallerProjectEvents;
+        private IVsPackageInstallerEvents packageInstallerEvents;
+        
+        private string currentBatchId;
+        private Dictionary<string, string> packagesMetadata;
+        
         /// <summary>
         /// ConfigTransSourceNupkgConfigModPreserver GUID string.
         /// </summary>
@@ -58,8 +68,50 @@ namespace ConfigTransSourceNupkgConfigModPreserver
         protected override void Initialize()
         {
             base.Initialize();
+
+            var componentModel = (IComponentModel)GetService(typeof(SComponentModel));
+            packageInstallerEvents = componentModel.GetService<IVsPackageInstallerEvents>();
+            packageInstallerProjectEvents = componentModel.GetService<IVsPackageInstallerProjectEvents>();
+
+            BindNuGetPackageEvents();
         }
 
         #endregion
+
+        private void BindNuGetPackageEvents()
+        {
+            packageInstallerProjectEvents.BatchStart += (projectMetadata) =>
+            {
+                // preserve current batch id or project name to compare with batch end event
+                currentBatchId = projectMetadata.BatchId;
+                Console.WriteLine("Current Project Name : " + projectMetadata.ProjectName);
+            };
+
+            packageInstallerEvents.PackageInstalled += (metadata) =>
+            {
+                // package being insalled in current project
+                // Save package metadata to use at batch end event
+                packagesMetadata.Add(metadata.Id, "installed");
+            };
+
+            packageInstallerEvents.PackageUninstalled += (metadata) =>
+            {
+                // package being uninstalled in current project
+                // Save package metadata to use at batch end event
+                packagesMetadata.Add(metadata.Id, "uninstalled");
+            };
+
+            packageInstallerProjectEvents.BatchEnd += (projectMetadata) =>
+            {
+                if (currentBatchId == projectMetadata.BatchId)
+                {
+                    // Now you can use your packages metadata saved during packageinstalled or packageuninstalled events
+                    foreach (var packageName in packagesMetadata.Keys)
+                    {
+                        Console.WriteLine($"Package {packageName} was {packagesMetadata[packageName]}");
+                    }
+                }
+            };
+        }
     }
 }
