@@ -5,13 +5,16 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
+using EnvDTE;
+using Microsoft.Internal.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using NuGet.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.Internal.VisualStudio.PlatformUI;
+using Process = System.Diagnostics.Process;
 
 namespace ConfigTransSourceNupkgConfigModPreserver
 {
@@ -82,7 +85,9 @@ namespace ConfigTransSourceNupkgConfigModPreserver
                     var result = PromptUser();
                     if (result == DialogResult.Yes)
                     {
-                        // ...
+                        ExecuteCommand("cmd.exe", "copy NUL temp.web.config", true);
+                        ExecuteCommand("git.exe", "merge-file source.web.config temp.web.config transformed.web.config");
+                        ExecuteCommand("cmd.exe", "del temp.web.config", true);
                     }                    
                 }
             };
@@ -105,6 +110,51 @@ namespace ConfigTransSourceNupkgConfigModPreserver
                 0,
                 out result));
             return result;
+        }
+
+        public void ExecuteCommand(string exe, string arguments, bool isCmd = false)
+        {
+            var processStartInfo = new ProcessStartInfo();
+            
+            processStartInfo.CreateNoWindow = true;
+            processStartInfo.RedirectStandardError = true;
+            processStartInfo.RedirectStandardOutput = true;
+            if (isCmd)
+                processStartInfo.RedirectStandardInput = true;
+            processStartInfo.UseShellExecute = false;
+            processStartInfo.FileName = exe;
+
+            var process = new Process();
+            if (!isCmd)
+                processStartInfo.Arguments = arguments;
+
+            var dte = (DTE)GetService(typeof(DTE));
+            var solutionDir = System.IO.Path.GetDirectoryName(dte.Solution.FullName);
+            processStartInfo.WorkingDirectory = solutionDir;
+
+            process.StartInfo = processStartInfo;
+            process.Start();
+
+            if (isCmd)
+            {
+                process.StandardInput.WriteLine(arguments);
+                process.StandardInput.Flush();
+                process.StandardInput.Close();
+            }
+            else
+            {
+                var stderrStr = process.StandardError.ReadToEnd();
+                var stdoutStr = process.StandardOutput.ReadToEnd();
+            }
+
+            process.WaitForExit();
+            
+            var exitCode = process.ExitCode;
+            
+            if (isCmd)
+                Console.WriteLine(process.StandardOutput.ReadToEnd());
+            else
+                process.Close();
         }
     }
 }
