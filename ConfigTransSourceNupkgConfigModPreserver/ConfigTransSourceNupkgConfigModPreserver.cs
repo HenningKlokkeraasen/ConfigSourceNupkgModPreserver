@@ -75,6 +75,8 @@ namespace ConfigTransSourceNupkgConfigModPreserver
             packageInstallerEvents = componentModel.GetService<IVsPackageInstallerEvents>();
             packageInstallerProjectEvents = componentModel.GetService<IVsPackageInstallerProjectEvents>();
 
+            packagesMetadata = new Dictionary<string, string>();
+
             BindNuGetPackageEvents();
         }
 
@@ -93,14 +95,20 @@ namespace ConfigTransSourceNupkgConfigModPreserver
             {
                 // package being insalled in current project
                 // Save package metadata to use at batch end event
-                packagesMetadata.Add(metadata.Id, "installed");
+                if (packagesMetadata.ContainsKey(metadata.Id))
+                    packagesMetadata[metadata.Id] = "installed";
+                else
+                    packagesMetadata.Add(metadata.Id, "installed");
             };
 
             packageInstallerEvents.PackageUninstalled += (metadata) =>
             {
                 // package being uninstalled in current project
                 // Save package metadata to use at batch end event
-                packagesMetadata.Add(metadata.Id, "uninstalled");
+                if (packagesMetadata.ContainsKey(metadata.Id))
+                    packagesMetadata[metadata.Id] = "uninstalled";
+                else
+                    packagesMetadata.Add(metadata.Id, "uninstalled");
             };
 
             packageInstallerProjectEvents.BatchEnd += (projectMetadata) =>
