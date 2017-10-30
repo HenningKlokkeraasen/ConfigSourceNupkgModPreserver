@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using NuGet.VisualStudio;
+using Microsoft.VisualStudio.Shell.Interop;
 
 namespace ConfigTransSourceNupkgConfigModPreserver
 {
@@ -35,6 +36,7 @@ namespace ConfigTransSourceNupkgConfigModPreserver
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)] // Info on this package for Help/About
     [Guid(ConfigTransSourceNupkgConfigModPreserver.PackageGuidString)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
+    [ProvideAutoLoad(UIContextGuids80.SolutionExists)]
     public sealed class ConfigTransSourceNupkgConfigModPreserver : Package
     {
         private IVsPackageInstallerProjectEvents packageInstallerProjectEvents;
