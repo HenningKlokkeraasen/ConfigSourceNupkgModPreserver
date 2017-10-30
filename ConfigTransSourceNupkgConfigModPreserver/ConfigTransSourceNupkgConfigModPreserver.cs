@@ -5,13 +5,13 @@
 //------------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using NuGet.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.Internal.VisualStudio.PlatformUI;
 
 namespace ConfigTransSourceNupkgConfigModPreserver
 {
@@ -39,28 +39,15 @@ namespace ConfigTransSourceNupkgConfigModPreserver
     [ProvideAutoLoad(UIContextGuids80.SolutionExists)]
     public sealed class ConfigTransSourceNupkgConfigModPreserver : Package
     {
-        private IVsPackageInstallerProjectEvents packageInstallerProjectEvents;
-        private IVsPackageInstallerEvents packageInstallerEvents;
-        
-        private string currentBatchId;
-        private Dictionary<string, string> packagesMetadata;
-        
+        private IVsPackageInstallerProjectEvents _packageInstallerProjectEvents;
+        private IVsUIShell _vsUiShell;
+        private string _currentBatchId;
+
         /// <summary>
         /// ConfigTransSourceNupkgConfigModPreserver GUID string.
         /// </summary>
         public const string PackageGuidString = "36fa07a8-d764-4bbc-93af-858e6584bea8";
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ConfigTransSourceNupkgConfigModPreserver"/> class.
-        /// </summary>
-        public ConfigTransSourceNupkgConfigModPreserver()
-        {
-            // Inside this method you can place any initialization code that does not require
-            // any Visual Studio service because at this point the package object is created but
-            // not sited yet inside Visual Studio environment. The place to do all the other
-            // initialization is the Initialize method.
-        }
-
+        
         #region Package Members
 
         /// <summary>
@@ -72,10 +59,8 @@ namespace ConfigTransSourceNupkgConfigModPreserver
             base.Initialize();
 
             var componentModel = (IComponentModel)GetService(typeof(SComponentModel));
-            packageInstallerEvents = componentModel.GetService<IVsPackageInstallerEvents>();
-            packageInstallerProjectEvents = componentModel.GetService<IVsPackageInstallerProjectEvents>();
-
-            packagesMetadata = new Dictionary<string, string>();
+            _packageInstallerProjectEvents = componentModel.GetService<IVsPackageInstallerProjectEvents>();
+            _vsUiShell = (IVsUIShell)GetService(typeof(SVsUIShell));
 
             BindNuGetPackageEvents();
         }
@@ -84,44 +69,42 @@ namespace ConfigTransSourceNupkgConfigModPreserver
 
         private void BindNuGetPackageEvents()
         {
-            packageInstallerProjectEvents.BatchStart += (projectMetadata) =>
+            _packageInstallerProjectEvents.BatchStart += projectMetadata =>
             {
                 // preserve current batch id or project name to compare with batch end event
-                currentBatchId = projectMetadata.BatchId;
-                Console.WriteLine("Current Project Name : " + projectMetadata.ProjectName);
+                _currentBatchId = projectMetadata.BatchId;
             };
-
-            packageInstallerEvents.PackageInstalled += (metadata) =>
+            
+            _packageInstallerProjectEvents.BatchEnd += projectMetadata =>
             {
-                // package being insalled in current project
-                // Save package metadata to use at batch end event
-                if (packagesMetadata.ContainsKey(metadata.Id))
-                    packagesMetadata[metadata.Id] = "installed";
-                else
-                    packagesMetadata.Add(metadata.Id, "installed");
-            };
-
-            packageInstallerEvents.PackageUninstalled += (metadata) =>
-            {
-                // package being uninstalled in current project
-                // Save package metadata to use at batch end event
-                if (packagesMetadata.ContainsKey(metadata.Id))
-                    packagesMetadata[metadata.Id] = "uninstalled";
-                else
-                    packagesMetadata.Add(metadata.Id, "uninstalled");
-            };
-
-            packageInstallerProjectEvents.BatchEnd += (projectMetadata) =>
-            {
-                if (currentBatchId == projectMetadata.BatchId)
+                if (_currentBatchId == projectMetadata.BatchId)
                 {
-                    // Now you can use your packages metadata saved during packageinstalled or packageuninstalled events
-                    foreach (var packageName in packagesMetadata.Keys)
+                    var result = PromptUser();
+                    if (result == DialogResult.Yes)
                     {
-                        Console.WriteLine($"Package {packageName} was {packagesMetadata[packageName]}");
-                    }
+                        // ...
+                    }                    
                 }
             };
+        }
+
+        private int PromptUser()
+        {
+            var clsid = Guid.Empty;
+            int result;
+            Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(_vsUiShell.ShowMessageBox(
+                0,
+                ref clsid,
+                "Merge web.config back to source web.config?",
+                "...",
+                string.Empty,
+                0,
+                OLEMSGBUTTON.OLEMSGBUTTON_YESNO,
+                OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST,
+                OLEMSGICON.OLEMSGICON_QUERY,
+                0,
+                out result));
+            return result;
         }
     }
 }
