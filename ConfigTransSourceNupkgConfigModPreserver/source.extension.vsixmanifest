@@ -2,8 +2,8 @@
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
     <Identity Id="ConfigTransSourceNupkgConfigModPreserver.Henning Klokkeråsen.345823d6-02bf-4f79-9668-a2aa15490e19" Version="1.0" Language="en-US" Publisher="Henning Klokkeråsen" />
-    <DisplayName>ConfigTransSourceNupkgConfigModPreserver</DisplayName>
-    <Description>Empty VSIX Project.</Description>
+    <DisplayName>Configuration Transform Source NuGet Package Configuration Modification Preserver</DisplayName>
+    <Description xml:space="preserve">Preserves modifications in the transformed web.config file done by NuGet packages by merging the file into your source web.config file.</Description>
   </Metadata>
   <Installation>
     <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[14.0]" />

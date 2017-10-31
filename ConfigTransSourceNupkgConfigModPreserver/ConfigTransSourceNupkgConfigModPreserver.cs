@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Runtime.InteropServices;
 using EnvDTE;
 using Microsoft.Internal.VisualStudio.PlatformUI;
@@ -18,25 +19,12 @@ using Process = System.Diagnostics.Process;
 
 namespace ConfigTransSourceNupkgConfigModPreserver
 {
+    /// <inheritdoc />
     /// <summary>
-    /// This is the class that implements the package exposed by this assembly.
+    /// Implements the package exposed by this assembly.
     /// </summary>
-    /// <remarks>
-    /// <para>
-    /// The minimum requirement for a class to be considered a valid package for Visual Studio
-    /// is to implement the IVsPackage interface and register itself with the shell.
-    /// This package uses the helper classes defined inside the Managed Package Framework (MPF)
-    /// to do it: it derives from the Package class that provides the implementation of the
-    /// IVsPackage interface and uses the registration attributes defined in the framework to
-    /// register itself and its components with the shell. These attributes tell the pkgdef creation
-    /// utility what data to put into .pkgdef file.
-    /// </para>
-    /// <para>
-    /// To get loaded into VS, the package must be referred by &lt;Asset Type="Microsoft.VisualStudio.VsPackage" ...&gt; in .vsixmanifest file.
-    /// </para>
-    /// </remarks>
     [PackageRegistration(UseManagedResourcesOnly = true)]
-    [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)] // Info on this package for Help/About
+    [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]
     [Guid(ConfigTransSourceNupkgConfigModPreserver.PackageGuidString)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
     [ProvideAutoLoad(UIContextGuids80.SolutionExists)]
@@ -45,17 +33,12 @@ namespace ConfigTransSourceNupkgConfigModPreserver
         private IVsPackageInstallerProjectEvents _packageInstallerProjectEvents;
         private IVsUIShell _vsUiShell;
         private string _currentBatchId;
-
-        /// <summary>
-        /// ConfigTransSourceNupkgConfigModPreserver GUID string.
-        /// </summary>
+        
         public const string PackageGuidString = "36fa07a8-d764-4bbc-93af-858e6584bea8";
         
-        #region Package Members
-
+        /// <inheritdoc />
         /// <summary>
-        /// Initialization of the package; this method is called right after the package is sited, so this is the place
-        /// where you can put all the initialization code that rely on services provided by VisualStudio.
+        /// Initialization of the package; this method is called right after the package is sited.
         /// </summary>
         protected override void Initialize()
         {
@@ -68,8 +51,6 @@ namespace ConfigTransSourceNupkgConfigModPreserver
             BindNuGetPackageEvents();
         }
 
-        #endregion
-
         private void BindNuGetPackageEvents()
         {
             _packageInstallerProjectEvents.BatchStart += projectMetadata =>
@@ -80,16 +61,19 @@ namespace ConfigTransSourceNupkgConfigModPreserver
             
             _packageInstallerProjectEvents.BatchEnd += projectMetadata =>
             {
-                if (_currentBatchId == projectMetadata.BatchId)
-                {
-                    var result = PromptUser();
-                    if (result == DialogResult.Yes)
-                    {
-                        ExecuteCommand("cmd.exe", "copy NUL temp.web.config", true);
-                        ExecuteCommand("git.exe", "merge-file source.web.config temp.web.config transformed.web.config");
-                        ExecuteCommand("cmd.exe", "del temp.web.config", true);
-                    }                    
-                }
+                if (_currentBatchId != projectMetadata.BatchId)
+                    return;
+
+                var result = PromptUser();
+                if (result != DialogResult.Yes)
+                    return;
+
+                const string tempFileName = "temp.web.config";
+                var sourceFileName = "source.web.config"; // TODO get from user
+                var modifiedFileName = "transformed.web.config"; // TODO get from user
+                RunCommand("copy", $"NUL {tempFileName}");
+                RunProcess("git.exe", $"merge-file {sourceFileName} {tempFileName} {modifiedFileName}");
+                RunCommand("del", tempFileName);
             };
         }
 
@@ -100,8 +84,8 @@ namespace ConfigTransSourceNupkgConfigModPreserver
             Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(_vsUiShell.ShowMessageBox(
                 0,
                 ref clsid,
-                "Merge web.config back to source web.config?",
-                "...",
+                "Merge potentially transformed web.config back to source web.config?",
+                string.Empty,
                 string.Empty,
                 0,
                 OLEMSGBUTTON.OLEMSGBUTTON_YESNO,
@@ -112,49 +96,69 @@ namespace ConfigTransSourceNupkgConfigModPreserver
             return result;
         }
 
-        public void ExecuteCommand(string exe, string arguments, bool isCmd = false)
+        private void RunProcess(string processFileName, string arguments)
         {
-            var processStartInfo = new ProcessStartInfo();
-            
-            processStartInfo.CreateNoWindow = true;
-            processStartInfo.RedirectStandardError = true;
-            processStartInfo.RedirectStandardOutput = true;
-            if (isCmd)
-                processStartInfo.RedirectStandardInput = true;
-            processStartInfo.UseShellExecute = false;
-            processStartInfo.FileName = exe;
+            var processStartInfo = MakeProcessStartInfo(processFileName);
+            processStartInfo.Arguments = arguments;
 
-            var process = new Process();
-            if (!isCmd)
-                processStartInfo.Arguments = arguments;
+            var process = MakeProcess(processStartInfo);
 
-            var dte = (DTE)GetService(typeof(DTE));
-            var solutionDir = System.IO.Path.GetDirectoryName(dte.Solution.FullName);
-            processStartInfo.WorkingDirectory = solutionDir;
-
-            process.StartInfo = processStartInfo;
-            process.Start();
-
-            if (isCmd)
-            {
-                process.StandardInput.WriteLine(arguments);
-                process.StandardInput.Flush();
-                process.StandardInput.Close();
-            }
-            else
-            {
-                var stderrStr = process.StandardError.ReadToEnd();
-                var stdoutStr = process.StandardOutput.ReadToEnd();
-            }
+            var stderrStr = process.StandardError.ReadToEnd();
+            var stdoutStr = process.StandardOutput.ReadToEnd();
 
             process.WaitForExit();
             
             var exitCode = process.ExitCode;
+
+            process.Close();
+        }
+
+        private void RunCommand(string command, string arguments)
+        {
+            var processStartInfo = MakeProcessStartInfo("cmd.exe");
+            processStartInfo.RedirectStandardInput = true;
+
+            var process = MakeProcess(processStartInfo);
+
+            process.StandardInput.WriteLine($"{command} {arguments}");
+            process.StandardInput.Flush();
+            process.StandardInput.Close();
+            //var stderrStr = process.StandardError.ReadToEnd();
+            //var stdoutStr = process.StandardOutput.ReadToEnd();
             
-            if (isCmd)
-                Console.WriteLine(process.StandardOutput.ReadToEnd());
-            else
-                process.Close();
+            process.WaitForExit();
+
+            var exitCode = process.ExitCode;
+
+            Console.WriteLine(process.StandardOutput.ReadToEnd());
+        }
+
+        private static Process MakeProcess(ProcessStartInfo processStartInfo)
+        {
+            var process = new Process
+            {
+                StartInfo = processStartInfo
+            };
+            process.Start();
+            return process;
+        }
+
+        private ProcessStartInfo MakeProcessStartInfo(string processFileName)
+        {
+            var processStartInfo = new ProcessStartInfo
+            {
+                CreateNoWindow = true,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                FileName = processFileName
+            };
+
+            var dte = (DTE) GetService(typeof(DTE));
+            var solutionDir = Path.GetDirectoryName(dte.Solution.FullName);
+            processStartInfo.WorkingDirectory = solutionDir;
+
+            return processStartInfo;
         }
     }
 }
