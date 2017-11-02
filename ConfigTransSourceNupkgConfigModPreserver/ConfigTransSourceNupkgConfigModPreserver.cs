@@ -1,16 +1,11 @@
-﻿//------------------------------------------------------------------------------
-// <copyright file="ConfigTransSourceNupkgConfigModPreserver.cs" company="Company">
-//     Copyright (c) Company.  All rights reserved.
-// </copyright>
-//------------------------------------------------------------------------------
-
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.InteropServices;
 using EnvDTE;
 using Microsoft.Internal.VisualStudio.PlatformUI;
+using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
 using NuGet.VisualStudio;
@@ -37,9 +32,6 @@ namespace ConfigTransSourceNupkgConfigModPreserver
         public const string PackageGuidString = "36fa07a8-d764-4bbc-93af-858e6584bea8";
         
         /// <inheritdoc />
-        /// <summary>
-        /// Initialization of the package; this method is called right after the package is sited.
-        /// </summary>
         protected override void Initialize()
         {
             base.Initialize();
@@ -55,7 +47,6 @@ namespace ConfigTransSourceNupkgConfigModPreserver
         {
             _packageInstallerProjectEvents.BatchStart += projectMetadata =>
             {
-                // preserve current batch id or project name to compare with batch end event
                 _currentBatchId = projectMetadata.BatchId;
             };
             
@@ -81,7 +72,7 @@ namespace ConfigTransSourceNupkgConfigModPreserver
         {
             var clsid = Guid.Empty;
             int result;
-            Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(_vsUiShell.ShowMessageBox(
+            ErrorHandler.ThrowOnFailure(_vsUiShell.ShowMessageBox(
                 0,
                 ref clsid,
                 "Merge potentially transformed web.config back to source web.config?",
@@ -110,7 +101,24 @@ namespace ConfigTransSourceNupkgConfigModPreserver
             
             var exitCode = process.ExitCode;
 
+            if (!stderrStr.Equals(string.Empty))
+                WriteToWindow(stderrStr);
+            if (!stdoutStr.Equals(string.Empty))
+                WriteToWindow(stderrStr);
+
             process.Close();
+        }
+
+        private static void WriteToWindow(string text)
+        {
+            var outWindow = GetGlobalService(typeof(SVsOutputWindow)) as IVsOutputWindow;
+
+            var generalPaneGuid = VSConstants.GUID_OutWindowDebugPane; // GUID_OutWindowGeneralPane
+            IVsOutputWindowPane generalPane;
+            outWindow.GetPane(ref generalPaneGuid, out generalPane);
+
+            generalPane.OutputString(text);
+            generalPane.Activate();
         }
 
         private void RunCommand(string command, string arguments)
@@ -123,8 +131,6 @@ namespace ConfigTransSourceNupkgConfigModPreserver
             process.StandardInput.WriteLine($"{command} {arguments}");
             process.StandardInput.Flush();
             process.StandardInput.Close();
-            //var stderrStr = process.StandardError.ReadToEnd();
-            //var stdoutStr = process.StandardOutput.ReadToEnd();
             
             process.WaitForExit();
 
