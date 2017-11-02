@@ -51,13 +51,21 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Code\Merger.cs" />
+    <Compile Include="Code\NuGetIntegrator.cs" />
+    <Compile Include="Code\VisualStudioIntegrator.cs" />
+    <Compile Include="Code\WindowsProcessIntegrator.cs" />
     <Compile Include="ConfigTransSourceNupkgConfigModPreserver.cs" />
-    <Compile Include="OptionPageGrid.cs" />
+    <Compile Include="OptionPageGrid.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Key.snk" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>
