@@ -23,6 +23,7 @@ namespace ConfigTransSourceNupkgConfigModPreserver
     [Guid(ConfigTransSourceNupkgConfigModPreserver.PackageGuidString)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
     [ProvideAutoLoad(UIContextGuids80.SolutionExists)]
+    [ProvideOptionPage(typeof(OptionPageGrid), "Extensions", "Config Trans Source Nupkg Config Mod Preserver", 0, 0, true)]
     public sealed class ConfigTransSourceNupkgConfigModPreserver : Package
     {
         private IVsPackageInstallerProjectEvents _packageInstallerProjectEvents;
@@ -60,8 +61,8 @@ namespace ConfigTransSourceNupkgConfigModPreserver
                     return;
 
                 const string tempFileName = "temp.web.config";
-                var sourceFileName = "source.web.config"; // TODO get from user
-                var modifiedFileName = "transformed.web.config"; // TODO get from user
+                var sourceFileName = SourceConfigRelativePath;
+                var modifiedFileName = TransformedConfigRelativePath;
                 RunCommand("copy", $"NUL {tempFileName}");
                 RunProcess("git.exe", $"merge-file {sourceFileName} {tempFileName} {modifiedFileName}");
                 RunCommand("del", tempFileName);
@@ -166,5 +167,11 @@ namespace ConfigTransSourceNupkgConfigModPreserver
 
             return processStartInfo;
         }
+
+        public string SourceConfigRelativePath => OptionsPage.SourceConfigRelativePath;
+
+        public string TransformedConfigRelativePath => OptionsPage.TransformedConfigRelativePath;
+
+        private OptionPageGrid OptionsPage => (OptionPageGrid)GetDialogPage(typeof(OptionPageGrid));
     }
 }
