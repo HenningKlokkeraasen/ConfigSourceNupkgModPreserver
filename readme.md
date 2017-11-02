@@ -7,9 +7,9 @@ Solves the following scenario:
 * You never see the modifications, because you either have \web.config ignored or you build the solution before seeing the diff causing \web.config to be overwritten
 
 The extension hooks into NuGet events, and prompts you if you want to run the preservation.
-The preservation is done by calling _git merge-file_ with \Configurations\web.config as the current-file and \web.config as the other-file, causing changes in \web.config to be merged into \Configurations\web.config.
+The preservation is done by calling _git merge-file_ with \Configurations\web.config as the current-file and \web.config as the other-file (and an empty file as the base-file), causing changes in \web.config to be merged into \Configurations\web.config.
 You must handle the resulting merge manually.
 
 Prerequisites:
-* git must be installed
+* git must be installed (and in PATH)
 * \Configurations\web.config and \web.config must be similar (have several runs of the same lines), in order for git to be able to perform the merge-file algorithm - which should be fine as the latter is a result of the former
