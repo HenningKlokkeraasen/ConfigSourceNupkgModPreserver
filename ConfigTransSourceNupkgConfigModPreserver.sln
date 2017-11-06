@@ -1,8 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.8
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{45C9397C-76C7-4A5F-8B31-EB54ACE5A7B0}"
+	ProjectSection(SolutionItems) = preProject
+		readme.md = readme.md
+	EndProjectSection
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigTransSourceNupkgConfigModPreserver", "ConfigTransSourceNupkgConfigModPreserver\ConfigTransSourceNupkgConfigModPreserver.csproj", "{BA56EDF7-9846-4511-932C-E99888E8E95F}"
 EndProject
 Global
@@ -18,5 +23,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {29F6EDC6-7D79-4A47-BE9B-12BA02702AD5}
 	EndGlobalSection
 EndGlobal
