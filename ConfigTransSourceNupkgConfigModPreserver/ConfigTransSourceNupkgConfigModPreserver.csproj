@@ -59,9 +59,6 @@
     <Compile Include="Code\VisualStudioIntegrator.cs" />
     <Compile Include="Code\WindowsProcessIntegrator.cs" />
     <Compile Include="ConfigTransSourceNupkgConfigModPreserver.cs" />
-    <Compile Include="OptionPageGrid.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

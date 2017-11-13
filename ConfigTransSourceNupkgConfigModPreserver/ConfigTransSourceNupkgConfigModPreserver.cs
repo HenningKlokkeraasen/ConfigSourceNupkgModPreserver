@@ -18,7 +18,6 @@ namespace ConfigTransSourceNupkgConfigModPreserver
     [Guid(ConfigTransSourceNupkgConfigModPreserver.PackageGuidString)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
     [ProvideAutoLoad(UIContextGuids80.SolutionExists)]
-    [ProvideOptionPage(typeof(OptionPageGrid), "Extensions", "Config Trans Source Nupkg Config Mod Preserver", 0, 0, true)]
     public sealed class ConfigTransSourceNupkgConfigModPreserver : Package
     {
         private IVsPackageInstallerProjectEvents _packageInstallerProjectEvents;
@@ -46,12 +45,9 @@ namespace ConfigTransSourceNupkgConfigModPreserver
             nuGetIntegrator.BindNuGetPackageEvents(RunMerge);
         }
 
-        private void RunMerge() => _merger.RunMerge(SourceConfigRelativePath, TransformedConfigRelativePath, _dte.Solution.FullName);
-
-        private string SourceConfigRelativePath => OptionsPage.SourceConfigRelativePath;
-
-        private string TransformedConfigRelativePath => OptionsPage.TransformedConfigRelativePath;
-
-        private OptionPageGrid OptionsPage => (OptionPageGrid)GetDialogPage(typeof(OptionPageGrid));
+        private void RunMerge()
+        {
+            _merger.RunMerge("TODO", "TODO", _dte.Solution.FullName);
+        }
     }
 }
