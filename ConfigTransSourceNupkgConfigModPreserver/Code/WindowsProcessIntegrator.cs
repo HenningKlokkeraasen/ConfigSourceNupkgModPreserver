@@ -75,12 +75,9 @@ namespace ConfigTransSourceNupkgConfigModPreserver.Code
                 RedirectStandardError = true,
                 RedirectStandardOutput = true,
                 UseShellExecute = false,
-                FileName = processFileName
+                FileName = processFileName,
+                WorkingDirectory = solutionDirectory
             };
-
-            var solutionDir = Path.GetDirectoryName(solutionDirectory);
-            processStartInfo.WorkingDirectory = solutionDir;
-
             return processStartInfo;
         }
     }

@@ -54,11 +54,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Code\FileSystemIntegrator.cs" />
     <Compile Include="Code\Merger.cs" />
     <Compile Include="Code\NuGetIntegrator.cs" />
     <Compile Include="Code\VisualStudioIntegrator.cs" />
     <Compile Include="Code\WindowsProcessIntegrator.cs" />
+    <Compile Include="Code\WppTargetsFilesReader.cs" />
     <Compile Include="ConfigTransSourceNupkgConfigModPreserver.cs" />
+    <Compile Include="Contracts\IFileSystemIntegrator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

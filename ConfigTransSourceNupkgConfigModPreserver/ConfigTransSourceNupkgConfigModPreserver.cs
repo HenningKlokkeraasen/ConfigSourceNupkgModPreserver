@@ -47,7 +47,13 @@ namespace ConfigTransSourceNupkgConfigModPreserver
 
         private void RunMerge()
         {
-            _merger.RunMerge("TODO", "TODO", _dte.Solution.FullName);
+            var fileSystemIntegrator = new FileSystemIntegrator();
+            var solutionDir = fileSystemIntegrator.GetDirectoryName(_dte.Solution.FullName);
+
+            var wppTargetsFilesReader = new WppTargetsFilesReader(fileSystemIntegrator);
+            var wppTargetsFiles = wppTargetsFilesReader.GetWppTargetsFiles(solutionDir);
+
+            _merger.RunMerge("TODO", "TODO", solutionDir);
         }
     }
 }
