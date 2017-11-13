@@ -33,5 +33,13 @@ namespace ConfigTransSourceNupkgConfigModPreserver.Code
 
             return Directory.GetFiles(dir, extension);
         }
+
+        public string ReadAllText(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+                return string.Empty;
+
+            return File.ReadAllText(path);
+        }
     }
 }

@@ -59,6 +59,7 @@
     <Compile Include="Code\NuGetIntegrator.cs" />
     <Compile Include="Code\VisualStudioIntegrator.cs" />
     <Compile Include="Code\WindowsProcessIntegrator.cs" />
+    <Compile Include="Code\WppTargetsXmlParser.cs" />
     <Compile Include="Code\WppTargetsFilesReader.cs" />
     <Compile Include="ConfigTransSourceNupkgConfigModPreserver.cs" />
     <Compile Include="Contracts\IFileSystemIntegrator.cs" />
@@ -177,6 +178,7 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="VSPackage.resx">

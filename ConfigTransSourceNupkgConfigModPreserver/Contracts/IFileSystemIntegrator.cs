@@ -7,5 +7,6 @@ namespace ConfigTransSourceNupkgConfigModPreserver.Contracts
         string GetDirectoryName(string fileFullName);
         IEnumerable<string> GetSubDirectories(string dir);
         IEnumerable<string> GetFiles(string dir, string extension);
+        string ReadAllText(string path);
     }
 }
