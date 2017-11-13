@@ -15,7 +15,8 @@ namespace ConfigTransSourceNupkgConfigModPreserver.Code
         {
             var result = _visualStudioIntegrator.PromptUser(
                 "Merge potentially transformed web.config back to source web.config?", 
-                "File paths are configured under Tools -> Options -> Extensions");
+                $"Transformed web.config: \n\t{transformedConfigRelativePath}\n\n" +
+                $"Source web.config: \n\t{sourceConfigRelativePath}");
             if (result != DialogResult.Yes)
                 return;
 

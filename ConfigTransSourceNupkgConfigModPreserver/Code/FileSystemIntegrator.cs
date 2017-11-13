@@ -41,5 +41,21 @@ namespace ConfigTransSourceNupkgConfigModPreserver.Code
 
             return File.ReadAllText(path);
         }
+
+        public string CombinePath(string path1, string path2)
+        {
+            if (string.IsNullOrEmpty(path1) || string.IsNullOrEmpty(path2))
+                return string.Empty;
+
+            return Path.Combine(path1, path2);
+        }
+
+        public string CombinePath(params string[] paths)
+        {
+            if (paths == null || !paths.Any())
+                return string.Empty;
+
+            return Path.Combine(paths);
+        }
     }
 }

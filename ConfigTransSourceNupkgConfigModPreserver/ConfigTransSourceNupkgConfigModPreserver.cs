@@ -59,9 +59,14 @@ namespace ConfigTransSourceNupkgConfigModPreserver
             {
                 var xml = fileSystemIntegrator.ReadAllText(wppTargetsFile);
                 var configFolder = wppTargetsFileParser.GetConfigFolder(xml);
-            }
 
-            _merger.RunMerge("TODO", "TODO", solutionDir);
+                var projectFolder = fileSystemIntegrator.GetDirectoryName(wppTargetsFile);
+
+                var sourceWebConfigPath = fileSystemIntegrator.CombinePath(projectFolder, configFolder, "web.config");
+                var transformedWebConfigPath = fileSystemIntegrator.CombinePath(projectFolder, "web.config");
+
+                _merger.RunMerge(sourceWebConfigPath, transformedWebConfigPath, solutionDir);
+            }
         }
     }
 }
