@@ -18,7 +18,6 @@ namespace ConfigTransSourceNupkgConfigModPreserver
     [Guid(ConfigTransSourceNupkgConfigModPreserver.PackageGuidString)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
     [ProvideAutoLoad(UIContextGuids80.SolutionExists)]
-    [ProvideOptionPage(typeof(OptionPageGrid), "Extensions", "Config Trans Source Nupkg Config Mod Preserver", 0, 0, true)]
     public sealed class ConfigTransSourceNupkgConfigModPreserver : Package
     {
         private IVsPackageInstallerProjectEvents _packageInstallerProjectEvents;
@@ -46,12 +45,28 @@ namespace ConfigTransSourceNupkgConfigModPreserver
             nuGetIntegrator.BindNuGetPackageEvents(RunMerge);
         }
 
-        private void RunMerge() => _merger.RunMerge(SourceConfigRelativePath, TransformedConfigRelativePath, _dte.Solution.FullName);
+        private void RunMerge()
+        {
+            var fileSystemIntegrator = new FileSystemIntegrator();
+            var wppTargetsFilesReader = new WppTargetsFilesReader(fileSystemIntegrator);
+            var wppTargetsFileParser = new WppTargetsXmlParser();
 
-        private string SourceConfigRelativePath => OptionsPage.SourceConfigRelativePath;
+            var solutionDir = fileSystemIntegrator.GetDirectoryName(_dte.Solution.FullName);
 
-        private string TransformedConfigRelativePath => OptionsPage.TransformedConfigRelativePath;
+            var wppTargetsFiles = wppTargetsFilesReader.GetWppTargetsFiles(solutionDir);
 
-        private OptionPageGrid OptionsPage => (OptionPageGrid)GetDialogPage(typeof(OptionPageGrid));
+            foreach (var wppTargetsFile in wppTargetsFiles)
+            {
+                var xml = fileSystemIntegrator.ReadAllText(wppTargetsFile);
+                var configFolder = wppTargetsFileParser.GetConfigFolder(xml);
+
+                var projectFolder = fileSystemIntegrator.GetDirectoryName(wppTargetsFile);
+
+                var sourceWebConfigPath = fileSystemIntegrator.CombinePath(projectFolder, configFolder, "web.config");
+                var transformedWebConfigPath = fileSystemIntegrator.CombinePath(projectFolder, "web.config");
+
+                _merger.RunMerge(sourceWebConfigPath, transformedWebConfigPath, solutionDir);
+            }
+        }
     }
 }
