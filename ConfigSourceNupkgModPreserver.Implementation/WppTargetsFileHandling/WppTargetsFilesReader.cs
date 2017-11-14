@@ -1,26 +1,31 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using ConfigTransSourceNupkgConfigModPreserver.Contracts;
+using ConfigSourceNupkgModPreserver.Contracts.WindowsFacade;
+using ConfigSourceNupkgModPreserver.Contracts.WppTargetsFileHandling;
 
-namespace ConfigTransSourceNupkgConfigModPreserver.Code
+namespace ConfigSourceNupkgModPreserver.Implementation.WppTargetsFileHandling
 {
-    public class WppTargetsFilesReader
+    public class WppTargetsFilesReader : IWppTargetsFilesReader
     {
         public const string WppTargetsFileExtension = ".wpp.targets";
 
-        private readonly IFileSystemIntegrator _fileGetter;
+        private readonly IFileSystemFacade _fileGetter;
 
-        public WppTargetsFilesReader(IFileSystemIntegrator fileGetter)
+        public WppTargetsFilesReader(IFileSystemFacade fileGetter)
         {
             _fileGetter = fileGetter;
         }
 
-        public IEnumerable<string> GetWppTargetsFiles(string solutionFullName)
+        /// <summary>
+        /// Grabs the first file with extension .wpp.targets in each subdirectory (one level) below the directory
+        /// </summary>
+        /// <param name="directory">E.g. c:\source\MyApp\</param>
+        public IEnumerable<string> GetWppTargetsFiles(string directory)
         {
-            if (string.IsNullOrEmpty(solutionFullName))
+            if (string.IsNullOrEmpty(directory))
                 return Enumerable.Empty<string>();
 
-            var subDirectories = _fileGetter.GetSubDirectories(solutionFullName);
+            var subDirectories = _fileGetter.GetSubDirectories(directory);
             if (subDirectories == null)
                 return Enumerable.Empty<string>();
 

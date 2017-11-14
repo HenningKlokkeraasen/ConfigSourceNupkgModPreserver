@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace ConfigTransSourceNupkgConfigModPreserver.Contracts
+namespace ConfigSourceNupkgModPreserver.Contracts.WindowsFacade
 {
-    public interface IFileSystemIntegrator
+    public interface IFileSystemFacade
     {
         string GetDirectoryName(string fileFullName);
         IEnumerable<string> GetSubDirectories(string dir);

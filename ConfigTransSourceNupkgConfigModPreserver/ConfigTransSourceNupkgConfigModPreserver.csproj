@@ -54,20 +54,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Code\FileSystemIntegrator.cs" />
-    <Compile Include="Code\Merger.cs" />
-    <Compile Include="Code\NuGetIntegrator.cs" />
-    <Compile Include="Code\VisualStudioIntegrator.cs" />
-    <Compile Include="Code\WindowsProcessIntegrator.cs" />
-    <Compile Include="Code\WppTargetsXmlParser.cs" />
-    <Compile Include="Code\WppTargetsFilesReader.cs" />
     <Compile Include="ConfigTransSourceNupkgConfigModPreserver.cs" />
-    <Compile Include="Contracts\IFileSystemIntegrator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Key.snk" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>
@@ -187,7 +181,16 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\ConfigSourceNupkgModPreserver.Contracts\ConfigSourceNupkgModPreserver.Contracts.csproj">
+      <Project>{f89529a8-05bb-4f87-bd67-e2fd7e0582d8}</Project>
+      <Name>ConfigSourceNupkgModPreserver.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ConfigSourceNupkgModPreserver.Implementation\ConfigSourceNupkgModPreserver.Implementation.csproj">
+      <Project>{78b12b0e-9ebd-420e-a720-4d34b6550acd}</Project>
+      <Name>ConfigSourceNupkgModPreserver.Implementation</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <Import Project="..\packages\Microsoft.VisualStudio.SDK.EmbedInteropTypes.15.0.9\build\Microsoft.VisualStudio.SDK.EmbedInteropTypes.targets" Condition="Exists('..\packages\Microsoft.VisualStudio.SDK.EmbedInteropTypes.15.0.9\build\Microsoft.VisualStudio.SDK.EmbedInteropTypes.targets')" />

@@ -1,18 +1,24 @@
 ﻿using System;
 using NuGet.VisualStudio;
 
-namespace ConfigTransSourceNupkgConfigModPreserver.Code
+namespace ConfigSourceNupkgModPreserver.Implementation.VisualStudioFacade
 {
-    public class NuGetIntegrator
+    public class NuGetFacade
     {
         private readonly IVsPackageInstallerProjectEvents _packageInstallerProjectEvents;
         private string _currentBatchId;
 
-        public NuGetIntegrator(IVsPackageInstallerProjectEvents packageInstallerProjectEvents)
+        public NuGetFacade(IVsPackageInstallerProjectEvents packageInstallerProjectEvents)
         {
             _packageInstallerProjectEvents = packageInstallerProjectEvents;
         }
 
+        /// <summary>
+        /// Binds the callback to the BatchEnd event of IVsPackageInstallerProjectEvents (NuGet)
+        /// More info: https://stackoverflow.com/questions/40478003/visual-studio-extension-event-after-nuget-install-uninstall
+        /// https://docs.microsoft.com/nb-no/nuget/visual-studio-extensibility/nuget-api-in-visual-studio
+        /// </summary>
+        /// <param name="callback"></param>
         public void BindNuGetPackageEvents(Action callback)
         {
             _packageInstallerProjectEvents.BatchStart += projectMetadata =>
@@ -25,7 +31,7 @@ namespace ConfigTransSourceNupkgConfigModPreserver.Code
                 if (_currentBatchId != projectMetadata.BatchId)
                     return;
 
-                callback();
+                callback?.Invoke();
             };
         }
     }

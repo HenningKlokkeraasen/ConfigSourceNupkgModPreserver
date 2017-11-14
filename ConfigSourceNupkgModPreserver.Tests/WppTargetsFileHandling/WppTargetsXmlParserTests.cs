@@ -1,12 +1,15 @@
-﻿using ConfigTransSourceNupkgConfigModPreserver.Code;
+﻿using ConfigSourceNupkgModPreserver.Implementation.WppTargetsFileHandling;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace ConfigSourceNupkgModPreserver.Tests.IntegrationTests
+namespace ConfigSourceNupkgModPreserver.Tests.WppTargetsFileHandling
 {
     [TestFixture]
     public class WppTargetsXmlParserTests
     {
+        /// <summary>
+        /// Tests correct XML parsing - dependes on LINQ to XML
+        /// </summary>
         [Test]
         public void Test()
         {

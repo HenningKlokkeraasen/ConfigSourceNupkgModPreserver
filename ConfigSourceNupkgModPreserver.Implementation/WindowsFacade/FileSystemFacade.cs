@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ConfigTransSourceNupkgConfigModPreserver.Contracts;
+using ConfigSourceNupkgModPreserver.Contracts.WindowsFacade;
 
-namespace ConfigTransSourceNupkgConfigModPreserver.Code
+namespace ConfigSourceNupkgModPreserver.Implementation.WindowsFacade
 {
-    public class FileSystemIntegrator : IFileSystemIntegrator
+    public class FileSystemFacade : IFileSystemFacade
     {
         public string GetDirectoryName(string fileFullName)
         {

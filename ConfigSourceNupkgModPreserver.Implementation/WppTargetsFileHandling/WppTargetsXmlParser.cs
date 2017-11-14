@@ -1,8 +1,9 @@
 ﻿using System.Xml.Linq;
+using ConfigSourceNupkgModPreserver.Contracts.WppTargetsFileHandling;
 
-namespace ConfigTransSourceNupkgConfigModPreserver.Code
+namespace ConfigSourceNupkgModPreserver.Implementation.WppTargetsFileHandling
 {
-    public class WppTargetsXmlParser
+    public class WppTargetsXmlParser : IWppTargetsXmlParser
     {
         private static XNamespace NamespaceMsBuild => "http://schemas.microsoft.com/developer/msbuild/2003";
         private const string ElementPropertyGroup = "PropertyGroup";

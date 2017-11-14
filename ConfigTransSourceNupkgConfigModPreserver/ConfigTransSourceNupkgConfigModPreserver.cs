@@ -1,6 +1,14 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
-using ConfigTransSourceNupkgConfigModPreserver.Code;
+using ConfigSourceNupkgModPreserver.Contracts.Merging;
+using ConfigSourceNupkgModPreserver.Contracts.VisualStudioFacade;
+using ConfigSourceNupkgModPreserver.Contracts.WindowsFacade;
+using ConfigSourceNupkgModPreserver.Contracts.WppTargetsFileHandling;
+using ConfigSourceNupkgModPreserver.Implementation.Merging;
+using ConfigSourceNupkgModPreserver.Implementation.Orchestration;
+using ConfigSourceNupkgModPreserver.Implementation.VisualStudioFacade;
+using ConfigSourceNupkgModPreserver.Implementation.WindowsFacade;
+using ConfigSourceNupkgModPreserver.Implementation.WppTargetsFileHandling;
 using EnvDTE;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.Shell;
@@ -24,7 +32,14 @@ namespace ConfigTransSourceNupkgConfigModPreserver
         private IVsUIShell _vsUiShell;
         private DTE _dte;
         private IVsOutputWindow _vsOutputWindow;
-        private Merger _merger;
+        private IMerger _merger;
+        private IFileSystemFacade _fileSystemFacade;
+        private IWppTargetsFilesReader _wppTargetsFilesReader;
+        private IWppTargetsXmlParser _wppTargetsFileParser;
+        private IVisualStudioFacade _visualStudioFacade;
+        private IWindowsShellFacade _windowsShellFacade;
+        private NuGetFacade _nuGetFacade;
+        private Orchestrator _orchestrator;
 
         public const string PackageGuidString = "36fa07a8-d764-4bbc-93af-858e6584bea8";
         
@@ -38,35 +53,18 @@ namespace ConfigTransSourceNupkgConfigModPreserver
             _vsOutputWindow = GetGlobalService(typeof(SVsOutputWindow)) as IVsOutputWindow;
             _dte = (DTE)GetService(typeof(DTE));
 
-            var visualStudioIntegrator = new VisualStudioIntegrator(_vsUiShell, _vsOutputWindow);
-            _merger = new Merger(visualStudioIntegrator);
-            var nuGetIntegrator = new NuGetIntegrator(_packageInstallerProjectEvents);
+            _visualStudioFacade = new VisualStudioFacade(_vsUiShell, _vsOutputWindow);
+            _windowsShellFacade = new WindowsShellFacade();
+            _merger = new Merger(_visualStudioFacade, _windowsShellFacade);
+            _nuGetFacade = new NuGetFacade(_packageInstallerProjectEvents);
+            _fileSystemFacade = new FileSystemFacade();
+            _wppTargetsFilesReader = new WppTargetsFilesReader(_fileSystemFacade);
+            _wppTargetsFileParser = new WppTargetsXmlParser();
+            _orchestrator = new Orchestrator(_fileSystemFacade, _wppTargetsFilesReader, _wppTargetsFileParser, _merger);
 
-            nuGetIntegrator.BindNuGetPackageEvents(RunMerge);
+            _nuGetFacade.BindNuGetPackageEvents(RunMerge);
         }
 
-        private void RunMerge()
-        {
-            var fileSystemIntegrator = new FileSystemIntegrator();
-            var wppTargetsFilesReader = new WppTargetsFilesReader(fileSystemIntegrator);
-            var wppTargetsFileParser = new WppTargetsXmlParser();
-
-            var solutionDir = fileSystemIntegrator.GetDirectoryName(_dte.Solution.FullName);
-
-            var wppTargetsFiles = wppTargetsFilesReader.GetWppTargetsFiles(solutionDir);
-
-            foreach (var wppTargetsFile in wppTargetsFiles)
-            {
-                var xml = fileSystemIntegrator.ReadAllText(wppTargetsFile);
-                var configFolder = wppTargetsFileParser.GetConfigFolder(xml);
-
-                var projectFolder = fileSystemIntegrator.GetDirectoryName(wppTargetsFile);
-
-                var sourceWebConfigPath = fileSystemIntegrator.CombinePath(projectFolder, configFolder, "web.config");
-                var transformedWebConfigPath = fileSystemIntegrator.CombinePath(projectFolder, "web.config");
-
-                _merger.RunMerge(sourceWebConfigPath, transformedWebConfigPath, solutionDir);
-            }
-        }
+        private void RunMerge() => _orchestrator.RunMerge(_dte.Solution.FullName);
     }
 }

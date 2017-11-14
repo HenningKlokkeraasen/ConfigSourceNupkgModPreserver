@@ -1,20 +1,25 @@
 ﻿using System;
+using ConfigSourceNupkgModPreserver.Contracts.VisualStudioFacade;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
 
-namespace ConfigTransSourceNupkgConfigModPreserver.Code
+namespace ConfigSourceNupkgModPreserver.Implementation.VisualStudioFacade
 {
-    public class VisualStudioIntegrator
+    public class VisualStudioFacade : IVisualStudioFacade
     {
         private readonly IVsUIShell _vsUiShell;
         private readonly IVsOutputWindow _vsOutputWindow;
 
-        public VisualStudioIntegrator(IVsUIShell shell, IVsOutputWindow outputWindow)
+        public VisualStudioFacade(IVsUIShell shell, IVsOutputWindow outputWindow)
         {
             _vsUiShell = shell;
             _vsOutputWindow = outputWindow;
         }
 
+        /// <summary>
+        /// Forces a Yes/No dialog prompt to the VS user
+        /// </summary>
+        /// <returns>An int defined in a DialogResult const</returns>
         public int PromptUser(string title, string message)
         {
             var clsid = Guid.Empty;

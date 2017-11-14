@@ -1,19 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using ConfigTransSourceNupkgConfigModPreserver.Code;
-using ConfigTransSourceNupkgConfigModPreserver.Contracts;
+using ConfigSourceNupkgModPreserver.Contracts.WindowsFacade;
+using ConfigSourceNupkgModPreserver.Implementation.WppTargetsFileHandling;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using Ploeh.AutoFixture;
 
-namespace ConfigSourceNupkgModPreserver.Tests
+namespace ConfigSourceNupkgModPreserver.Tests.WppTargetsFileHandling
 {
     [TestFixture]
     public class WppTargetsFilesReaderTests
     {
         private readonly Fixture _fixture = new Fixture();
-        private Mock<IFileSystemIntegrator> _fileSystemIntegratorMock;
+        private Mock<IFileSystemFacade> _fileSystemIntegratorMock;
         private WppTargetsFilesReader _sut;
         private string _solutionPath;
         private List<string> _subDirectories;
@@ -22,7 +22,7 @@ namespace ConfigSourceNupkgModPreserver.Tests
         public void SetUp()
         {
             _solutionPath = _fixture.Create<string>();
-            _fileSystemIntegratorMock = new Mock<IFileSystemIntegrator>();
+            _fileSystemIntegratorMock = new Mock<IFileSystemFacade>();
             _sut = new WppTargetsFilesReader(_fileSystemIntegratorMock.Object);
         }
 

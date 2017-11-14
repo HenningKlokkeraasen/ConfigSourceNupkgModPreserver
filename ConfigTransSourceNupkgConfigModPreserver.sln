@@ -12,6 +12,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigTransSourceNupkgConfi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigSourceNupkgModPreserver.Tests", "ConfigSourceNupkgModPreserver.Tests\ConfigSourceNupkgModPreserver.Tests.csproj", "{93F526C5-6319-4A5C-B73A-D9C67A03E19D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigSourceNupkgModPreserver.Contracts", "ConfigSourceNupkgModPreserver.Contracts\ConfigSourceNupkgModPreserver.Contracts.csproj", "{F89529A8-05BB-4F87-BD67-E2FD7E0582D8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigSourceNupkgModPreserver.Implementation", "ConfigSourceNupkgModPreserver.Implementation\ConfigSourceNupkgModPreserver.Implementation.csproj", "{78B12B0E-9EBD-420E-A720-4D34B6550ACD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +30,14 @@ Global
 		{93F526C5-6319-4A5C-B73A-D9C67A03E19D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93F526C5-6319-4A5C-B73A-D9C67A03E19D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93F526C5-6319-4A5C-B73A-D9C67A03E19D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F89529A8-05BB-4F87-BD67-E2FD7E0582D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F89529A8-05BB-4F87-BD67-E2FD7E0582D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F89529A8-05BB-4F87-BD67-E2FD7E0582D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F89529A8-05BB-4F87-BD67-E2FD7E0582D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78B12B0E-9EBD-420E-A720-4D34B6550ACD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78B12B0E-9EBD-420E-A720-4D34B6550ACD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78B12B0E-9EBD-420E-A720-4D34B6550ACD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78B12B0E-9EBD-420E-A720-4D34B6550ACD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
