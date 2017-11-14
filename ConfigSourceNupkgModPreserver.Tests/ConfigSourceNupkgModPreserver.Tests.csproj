@@ -121,6 +121,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Merging\MergerTests.cs" />
+    <Compile Include="Orchestration\OrchestratorTests.cs" />
     <Compile Include="WppTargetsFileHandling\WppTargetsXmlParserTests.cs" />
     <Compile Include="WppTargetsFileHandling\WppTargetsFilesReaderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

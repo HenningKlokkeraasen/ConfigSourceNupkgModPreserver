@@ -7,7 +7,7 @@ namespace ConfigSourceNupkgModPreserver.Implementation.Merging
 {
     public class Merger : IMerger
     {
-        public const string TempFileName = "temp.web.config";
+        public const string TempFileName = "configsourcenupkgmodpreserver.temp.config";
 
         private readonly IVisualStudioFacade _visualStudioFacade;
         private readonly IWindowsShellFacade _windowsShellFacade;
@@ -25,9 +25,9 @@ namespace ConfigSourceNupkgModPreserver.Implementation.Merging
         public void RunMerge(string sourceFileRelativePath, string transformedFileRelativePath, string solutionDir)
         {
             var result = _visualStudioFacade.PromptUser(
-                "Merge potentially transformed web.config back to source web.config?", 
-                $"Transformed web.config: \n\t{transformedFileRelativePath}\n\n" +
-                $"Source web.config: \n\t{sourceFileRelativePath}");
+                "Merge potentially transformed config back to source config?", 
+                $"Transformed config: \n\t{transformedFileRelativePath}\n\n" +
+                $"Source config: \n\t{sourceFileRelativePath}");
             if (result != DialogResult.Yes)
                 return;
 

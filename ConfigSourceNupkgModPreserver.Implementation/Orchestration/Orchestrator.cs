@@ -1,4 +1,5 @@
-﻿using ConfigSourceNupkgModPreserver.Contracts.Merging;
+﻿using System.Linq;
+using ConfigSourceNupkgModPreserver.Contracts.Merging;
 using ConfigSourceNupkgModPreserver.Contracts.WindowsFacade;
 using ConfigSourceNupkgModPreserver.Contracts.WppTargetsFileHandling;
 
@@ -23,20 +24,37 @@ namespace ConfigSourceNupkgModPreserver.Implementation.Orchestration
         {
             var solutionDir = _fileSystemFacade.GetDirectoryName(solutionName);
 
+            // Grab each .wpp.targets file in the solution
             var wppTargetsFiles = _wppTargetsFilesReader.GetWppTargetsFiles(solutionDir);
 
             foreach (var wppTargetsFile in wppTargetsFiles)
-            {
-                var xml = _fileSystemFacade.ReadAllText(wppTargetsFile);
-                var configFolder = _wppTargetsXmlParser.GetConfigFolder(xml);
+                MergeAllConfigFilesDefinedInWppTargetsFile(wppTargetsFile, solutionDir);
+        }
 
-                var projectFolder = _fileSystemFacade.GetDirectoryName(wppTargetsFile);
+        private void MergeAllConfigFilesDefinedInWppTargetsFile(string wppTargetsFile, string solutionDir)
+        {
+            var xml = _fileSystemFacade.ReadAllText(wppTargetsFile);
+            var info = _wppTargetsXmlParser.GetInfo(xml);
 
-                var sourceWebConfigPath = _fileSystemFacade.CombinePath(projectFolder, configFolder, "web.config");
-                var transformedWebConfigPath = _fileSystemFacade.CombinePath(projectFolder, "web.config");
+            if (string.IsNullOrEmpty(info?.ConfigFolder) || info.ConfigFiles == null || !info.ConfigFiles.Any())
+                return;
 
-                _merger.RunMerge(sourceWebConfigPath, transformedWebConfigPath, solutionDir);
-            }
+            var projectFolder = _fileSystemFacade.GetDirectoryName(wppTargetsFile);
+
+            // Grab each config file defined in the .wpp.targets file
+            foreach (var configFile in info.ConfigFiles)
+                MergeConfigFiles(configFile, info, projectFolder, solutionDir);
+        }
+
+        private void MergeConfigFiles(string configFile, WppTargetsInfo info, string projectFolder, string solutionDir)
+        {
+            // The source config file is assumed placed in the ConfigFolder specified in the .wpp.targets file
+            var sourcePath = _fileSystemFacade.CombinePath(projectFolder, info.ConfigFolder, configFile);
+
+            // The tranformed config file is assumed placed in the root of the project
+            var transformedPath = _fileSystemFacade.CombinePath(projectFolder, configFile);
+
+            _merger.RunMerge(sourcePath, transformedPath, solutionDir);
         }
     }
 }

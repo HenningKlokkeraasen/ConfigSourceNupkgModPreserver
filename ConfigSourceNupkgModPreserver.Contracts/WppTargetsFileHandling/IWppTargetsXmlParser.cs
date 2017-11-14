@@ -2,6 +2,6 @@
 {
     public interface IWppTargetsXmlParser
     {
-        string GetConfigFolder(string xml);
+        WppTargetsInfo GetInfo(string xml);
     }
 }
