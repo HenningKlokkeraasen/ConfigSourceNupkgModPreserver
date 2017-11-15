@@ -15,7 +15,7 @@ using Microsoft.VisualStudio.Shell;
 using NuGet.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
 
-namespace ConfigTransSourceNupkgConfigModPreserver
+namespace ConfigSourceNupkgModPreserver
 {
     /// <inheritdoc />
     /// <summary>
@@ -23,10 +23,11 @@ namespace ConfigTransSourceNupkgConfigModPreserver
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]
-    [Guid(ConfigTransSourceNupkgConfigModPreserver.PackageGuidString)]
+    [Guid(ConfigSourceNupkgModPreserver.PackageGuidString)]
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
     [ProvideAutoLoad(UIContextGuids80.SolutionExists)]
-    public sealed class ConfigTransSourceNupkgConfigModPreserver : Package
+    public sealed class ConfigSourceNupkgModPreserver : Package
+    //public sealed class ConfigTransSourceNupkgConfigModPreserver : Package
     {
         private IVsPackageInstallerProjectEvents _packageInstallerProjectEvents;
         private IVsUIShell _vsUiShell;
