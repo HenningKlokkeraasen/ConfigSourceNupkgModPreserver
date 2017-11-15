@@ -11,5 +11,6 @@ The preservation is done by calling _git merge-file_ with \Configurations\web.co
 You must handle the resulting merge manually.
 
 Prerequisites:
+* Supports Visual Studio 2017 only
 * git must be installed (and in PATH)
 * \Configurations\web.config and \web.config must be similar (have several runs of the same lines), in order for git to be able to perform the merge-file algorithm - which should be fine as the latter is a result of the former
