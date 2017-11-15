@@ -27,7 +27,6 @@ namespace ConfigSourceNupkgModPreserver
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "pkgdef, VS and vsixmanifest are valid VS terms")]
     [ProvideAutoLoad(UIContextGuids80.SolutionExists)]
     public sealed class ConfigSourceNupkgModPreserver : Package
-    //public sealed class ConfigTransSourceNupkgConfigModPreserver : Package
     {
         private IVsPackageInstallerProjectEvents _packageInstallerProjectEvents;
         private IVsUIShell _vsUiShell;
