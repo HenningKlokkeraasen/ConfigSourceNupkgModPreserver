@@ -41,12 +41,16 @@ namespace ConfigSourceNupkgModPreserver.Implementation.VisualStudioFacade
 
         public void WriteToDebugPane(string text) => WriteToPane(text, VSConstants.GUID_OutWindowDebugPane);
 
-        public void WriteToGeneralPane(string text) => WriteToPane(text, VSConstants.GUID_OutWindowGeneralPane);
+        // TODO VSConstants.GUID_OutWindowGeneralPane doesnt resolve to the general pane. Using debug pane for now
+        public void WriteToGeneralPane(string text) => WriteToDebugPane(text);
 
         private void WriteToPane(string text, Guid paneGuid)
         {
             IVsOutputWindowPane pane;
             _vsOutputWindow.GetPane(ref paneGuid, out pane);
+
+            if (pane == null)
+                return;
 
             pane.OutputString(text);
             pane.Activate();

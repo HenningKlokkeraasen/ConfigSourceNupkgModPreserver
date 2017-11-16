@@ -43,6 +43,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Merging\IMerger.cs" />
+    <Compile Include="Merging\MergeResult.cs" />
+    <Compile Include="Merging\ProcessResult.cs" />
     <Compile Include="WppTargetsFileHandling\IWppTargetsFilesReader.cs" />
     <Compile Include="WindowsFacade\IFileSystemFacade.cs" />
     <Compile Include="VisualStudioFacade\IVisualStudioFacade.cs" />

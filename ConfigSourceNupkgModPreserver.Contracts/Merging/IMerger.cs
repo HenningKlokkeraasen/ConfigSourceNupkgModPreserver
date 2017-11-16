@@ -2,6 +2,6 @@
 {
     public interface IMerger
     {
-        void RunMerge(string sourceFileRelativePath, string transformedFileRelativePath, string solutionDir);
+        MergeResult RunMerge(string sourceFileRelativePath, string transformedFileRelativePath, string solutionDir);
     }
 }

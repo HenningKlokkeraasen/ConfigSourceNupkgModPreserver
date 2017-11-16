@@ -60,7 +60,7 @@ namespace ConfigSourceNupkgModPreserver
             _fileSystemFacade = new FileSystemFacade();
             _wppTargetsFilesReader = new WppTargetsFilesReader(_fileSystemFacade);
             _wppTargetsFileParser = new WppTargetsXmlParser();
-            _orchestrator = new Orchestrator(_fileSystemFacade, _wppTargetsFilesReader, _wppTargetsFileParser, _merger);
+            _orchestrator = new Orchestrator(_fileSystemFacade, _wppTargetsFilesReader, _wppTargetsFileParser, _merger, _visualStudioFacade);
 
             _nuGetFacade.BindNuGetPackageEvents(RunMerge);
         }

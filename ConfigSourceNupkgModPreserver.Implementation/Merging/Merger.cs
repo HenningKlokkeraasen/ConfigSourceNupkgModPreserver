@@ -1,4 +1,5 @@
-﻿using ConfigSourceNupkgModPreserver.Contracts.Merging;
+﻿using System.Collections.Generic;
+using ConfigSourceNupkgModPreserver.Contracts.Merging;
 using ConfigSourceNupkgModPreserver.Contracts.VisualStudioFacade;
 using ConfigSourceNupkgModPreserver.Contracts.WindowsFacade;
 using Microsoft.Internal.VisualStudio.PlatformUI;
@@ -22,21 +23,28 @@ namespace ConfigSourceNupkgModPreserver.Implementation.Merging
         /// Prompts the VS user if git merge-file should be run, 
         /// and runs the git command if the answer is "yes".
         /// </summary>
-        public void RunMerge(string sourceFileRelativePath, string transformedFileRelativePath, string solutionDir)
+        public MergeResult RunMerge(string sourceFileRelativePath, string transformedFileRelativePath, string solutionDir)
         {
             var result = _visualStudioFacade.PromptUser(
-                "Merge potentially transformed config back to source config?", 
-                $"Transformed config: \n\t{transformedFileRelativePath}\n\n" +
-                $"Source config: \n\t{sourceFileRelativePath}");
+                "Merge potentially modified transform config back to source config?", 
+                $"Transform config: \n{transformedFileRelativePath}\n\n" +
+                $"Source config: \n{sourceFileRelativePath}");
             if (result != DialogResult.Yes)
-                return;
+                return MergeResult.Empty;
 
-            var processExitCode1 = _windowsShellFacade.RunCommand("copy", $"NUL {TempFileName}", solutionDir);
-            var processExitCode2AndMessage = _windowsShellFacade.RunProcess("git.exe", $"merge-file {sourceFileRelativePath} {TempFileName} {transformedFileRelativePath}", solutionDir);
-            var processExitCode3 = _windowsShellFacade.RunCommand("del", TempFileName, solutionDir);
+            var resultOfCopy = _windowsShellFacade.RunCommand("copy", $"NUL {TempFileName}", solutionDir);
+            var resultOfMergeFile = _windowsShellFacade.RunProcess("git.exe", $"merge-file {sourceFileRelativePath} {TempFileName} {transformedFileRelativePath}", solutionDir);
+            var resultOfDel = _windowsShellFacade.RunCommand("del", TempFileName, solutionDir);
 
-            if (processExitCode2AndMessage != null && !processExitCode2AndMessage.Item2.Equals(string.Empty))
-                _visualStudioFacade.WriteToDebugPane(processExitCode2AndMessage.Item2);
+            return new MergeResult
+            {
+                Results = new List<ProcessResult>
+                {
+                    resultOfCopy,
+                    resultOfMergeFile,
+                    resultOfDel
+                }
+            };
         }
     }
 }

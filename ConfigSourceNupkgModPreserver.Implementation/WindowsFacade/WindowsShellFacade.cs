@@ -1,5 +1,5 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using ConfigSourceNupkgModPreserver.Contracts.Merging;
 using ConfigSourceNupkgModPreserver.Contracts.WindowsFacade;
 
 namespace ConfigSourceNupkgModPreserver.Implementation.WindowsFacade
@@ -10,67 +10,62 @@ namespace ConfigSourceNupkgModPreserver.Implementation.WindowsFacade
         /// Runs a command (with optional arguments) in the workingDirectory,
         /// e.g. copy file.txt file.bak
         /// </summary>
-        /// <returns>Process exit code</returns>
-        public int RunCommand(string command, string arguments, string workingDirectory)
+        public ProcessResult RunCommand(string command, string arguments, string workingDirectory)
         {
             var processStartInfo = MakeProcessStartInfo("cmd.exe", workingDirectory);
             processStartInfo.RedirectStandardInput = true;
 
-            var process = MakeProcess(processStartInfo);
-            StartProcess(process);
+            var process = Start(processStartInfo);
 
             process.StandardInput.WriteLine($"{command} {arguments}");
             process.StandardInput.Flush();
             process.StandardInput.Close();
-
-            var exitCode = Exit(process);
-
-            Console.WriteLine(process.StandardOutput.ReadToEnd());
-
-            return exitCode;
+            
+            return Finish(process, command);
         }
 
         /// <summary>
         /// Runs a process (with optional arguments) in the workingDirectory
         /// e.g. git merge-file yours.txt base.txt theirs.txt
         /// </summary>
-        /// <returns>Process exit code and STDERR or STDOUT message if applicable</returns>
-        public Tuple<int, string> RunProcess(string processFileName, string arguments, string workingDirectory)
+        public ProcessResult RunProcess(string processFileName, string arguments, string workingDirectory)
         {
             var processStartInfo = MakeProcessStartInfo(processFileName, workingDirectory);
             processStartInfo.Arguments = arguments;
 
-            var process = MakeProcess(processStartInfo);
-            StartProcess(process);
+            var process = Start(processStartInfo);
+            
+            return Finish(process, processFileName);
+        }
 
-            var stderrStr = process.StandardError.ReadToEnd();
-            var stdoutStr = process.StandardOutput.ReadToEnd();
+        private static ProcessResult Finish(Process process, string processFileName)
+        {
+            var output = process.StandardOutput.ReadToEnd();
+            var error = process.StandardError.ReadToEnd();
 
-            var exitCode = Exit(process);
-
-            var message = !stderrStr.Equals(string.Empty)
-                ? stderrStr
-                : !stdoutStr.Equals(string.Empty)
-                    ? stdoutStr
-                    : string.Empty;
+            process.WaitForExit();
+            var exitCode = process.ExitCode;
 
             process.Close();
 
-            return new Tuple<int, string>(exitCode, message);
+            return new ProcessResult
+            {
+                NameOfProcessOrCommand = processFileName,
+                ExitCode = exitCode,
+                Error = error,
+                Output = output
+            };
         }
 
-        private static void StartProcess(Process process) => process.Start();
-
-        private static int Exit(Process process)
+        private static Process Start(ProcessStartInfo processStartInfo)
         {
-            process.WaitForExit();
-            return process.ExitCode;
+            var process = new Process
+            {
+                StartInfo = processStartInfo
+            };
+            process.Start();
+            return process;
         }
-
-        private static Process MakeProcess(ProcessStartInfo processStartInfo) => new Process
-        {
-            StartInfo = processStartInfo
-        };
 
         private static ProcessStartInfo MakeProcessStartInfo(string processFileName, string workingDirectory) => new ProcessStartInfo
         {

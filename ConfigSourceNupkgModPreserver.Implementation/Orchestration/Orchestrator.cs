@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using ConfigSourceNupkgModPreserver.Contracts.Merging;
+using ConfigSourceNupkgModPreserver.Contracts.VisualStudioFacade;
 using ConfigSourceNupkgModPreserver.Contracts.WindowsFacade;
 using ConfigSourceNupkgModPreserver.Contracts.WppTargetsFileHandling;
 
@@ -11,13 +12,15 @@ namespace ConfigSourceNupkgModPreserver.Implementation.Orchestration
         private readonly IWppTargetsFilesReader _wppTargetsFilesReader;
         private readonly IWppTargetsXmlParser _wppTargetsXmlParser;
         private readonly IMerger _merger;
+        private readonly IVisualStudioFacade _visualStudioFacade;
 
-        public Orchestrator(IFileSystemFacade fileSystemFacade, IWppTargetsFilesReader wppTargetsFilesReader, IWppTargetsXmlParser wppTargetsXmlParser, IMerger merger)
+        public Orchestrator(IFileSystemFacade fileSystemFacade, IWppTargetsFilesReader wppTargetsFilesReader, IWppTargetsXmlParser wppTargetsXmlParser, IMerger merger, IVisualStudioFacade visualStudioFacade)
         {
             _fileSystemFacade = fileSystemFacade;
             _wppTargetsFilesReader = wppTargetsFilesReader;
             _wppTargetsXmlParser = wppTargetsXmlParser;
             _merger = merger;
+            _visualStudioFacade = visualStudioFacade;
         }
 
         public void RunMerge(string solutionName)
@@ -54,7 +57,25 @@ namespace ConfigSourceNupkgModPreserver.Implementation.Orchestration
             // The tranformed config file is assumed placed in the root of the project
             var transformedPath = _fileSystemFacade.CombinePath(projectFolder, configFile);
 
-            _merger.RunMerge(sourcePath, transformedPath, solutionDir);
+            var mergeResult = _merger.RunMerge(sourcePath, transformedPath, solutionDir);
+
+            if (mergeResult == null || mergeResult == MergeResult.Empty || mergeResult.Results == null)
+                return;
+
+            foreach (var result in mergeResult.Results)
+                WriteProcessResultToVsWindow(result);
+        }
+
+        private void WriteProcessResultToVsWindow(ProcessResult result)
+        {
+            // Assume error if something has been written to STDERR. Do not rely on ExitCode - no standard definition of what is an error
+            if (!string.IsNullOrEmpty(result.Error))
+                _visualStudioFacade.WriteToGeneralPane($"Process {result.NameOfProcessOrCommand} exited with exit code {result.ExitCode} and error: {result.Error}");
+#if DEBUG
+            if (!string.IsNullOrEmpty(result.Output))
+                _visualStudioFacade.WriteToDebugPane($"(DEBUG) Process {result.NameOfProcessOrCommand} exited with exit code {result.ExitCode} and stdout: {result.Output}");
+#endif
+
         }
     }
 }

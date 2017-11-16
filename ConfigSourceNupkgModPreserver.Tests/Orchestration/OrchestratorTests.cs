@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using ConfigSourceNupkgModPreserver.Contracts.Merging;
+using ConfigSourceNupkgModPreserver.Contracts.VisualStudioFacade;
 using ConfigSourceNupkgModPreserver.Contracts.WindowsFacade;
 using ConfigSourceNupkgModPreserver.Contracts.WppTargetsFileHandling;
 using ConfigSourceNupkgModPreserver.Implementation.Orchestration;
@@ -17,6 +18,7 @@ namespace ConfigSourceNupkgModPreserver.Tests.Orchestration
         private Mock<IWppTargetsFilesReader> _wppTargetsFilesReader;
         private Mock<IWppTargetsXmlParser> _wppTargetsXmlParser;
         private Mock<IMerger> _merger;
+        private Mock<IVisualStudioFacade> _vsFacadeMock;
 
         [Test]
         public void MergesEachConfigFile()
@@ -25,6 +27,7 @@ namespace ConfigSourceNupkgModPreserver.Tests.Orchestration
             _wppTargetsFilesReader = new Mock<IWppTargetsFilesReader>();
             _wppTargetsXmlParser = new Mock<IWppTargetsXmlParser>();
             _merger = new Mock<IMerger>();
+            _vsFacadeMock = new Mock<IVisualStudioFacade>();
 
             // Setup solution dir
             var solutionName = _fixture.Create<string>();
@@ -83,7 +86,7 @@ namespace ConfigSourceNupkgModPreserver.Tests.Orchestration
             _fileSystemFacade.Setup(m => m.CombinePath(dir2, info2.ConfigFolder, info2.ConfigFiles.Last())).Returns(source2b);
             _fileSystemFacade.Setup(m => m.CombinePath(dir2, info2.ConfigFiles.Last())).Returns(trans2b);
 
-            var sut = new Orchestrator(_fileSystemFacade.Object, _wppTargetsFilesReader.Object, _wppTargetsXmlParser.Object, _merger.Object);
+            var sut = new Orchestrator(_fileSystemFacade.Object, _wppTargetsFilesReader.Object, _wppTargetsXmlParser.Object, _merger.Object, _vsFacadeMock.Object);
 
             sut.RunMerge(solutionName);
 
