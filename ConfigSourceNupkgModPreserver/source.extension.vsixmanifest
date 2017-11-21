@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="ConfigSourceNupkgModPreserver.Henning Klokkeråsen.345823d6-02bf-4f79-9668-a2aa15490e19" Version="1.0" Language="en-US" Publisher="Henning Klokkeråsen" />
+        <Identity Id="ConfigSourceNupkgModPreserver.Henning Klokkeråsen.345823d6-02bf-4f79-9668-a2aa15490e19" Version="1.0.2" Language="en-US" Publisher="Henning Klokkeråsen" />
         <DisplayName>Config Source Nupkg Mod Preserver</DisplayName>
         <Description xml:space="preserve">Preserves modifications to transformed config file done by NuGet packages by merging them back to the source config files.</Description>
     </Metadata>
