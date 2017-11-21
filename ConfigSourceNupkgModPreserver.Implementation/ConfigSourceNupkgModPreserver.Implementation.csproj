@@ -112,6 +112,7 @@
   <ItemGroup>
     <Compile Include="Merging\Merger.cs" />
     <Compile Include="Orchestration\Orchestrator.cs" />
+    <Compile Include="Orchestration\Prompter.cs" />
     <Compile Include="WindowsFacade\FileSystemFacade.cs" />
     <Compile Include="VisualStudioFacade\NuGetFacade.cs" />
     <Compile Include="VisualStudioFacade\VisualStudioFacade.cs" />

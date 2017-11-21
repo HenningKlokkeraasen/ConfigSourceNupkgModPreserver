@@ -24,6 +24,8 @@ namespace ConfigSourceNupkgModPreserver.Implementation.VisualStudioFacade
         {
             var clsid = Guid.Empty;
             int result;
+
+            // TODO OLEMSGBUTTON.OLEMSGBUTTON_YESALLNOCANCEL results in just OK button
             ErrorHandler.ThrowOnFailure(_vsUiShell.ShowMessageBox(
                 0,
                 ref clsid,
@@ -31,7 +33,7 @@ namespace ConfigSourceNupkgModPreserver.Implementation.VisualStudioFacade
                 message,
                 string.Empty,
                 0,
-                OLEMSGBUTTON.OLEMSGBUTTON_YESNO,
+                OLEMSGBUTTON.OLEMSGBUTTON_YESNOCANCEL,
                 OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST,
                 OLEMSGICON.OLEMSGICON_QUERY,
                 0,

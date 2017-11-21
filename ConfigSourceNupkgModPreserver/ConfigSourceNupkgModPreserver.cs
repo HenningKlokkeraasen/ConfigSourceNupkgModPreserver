@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using ConfigSourceNupkgModPreserver.Contracts.Merging;
+using ConfigSourceNupkgModPreserver.Contracts.Orchestration;
 using ConfigSourceNupkgModPreserver.Contracts.VisualStudioFacade;
 using ConfigSourceNupkgModPreserver.Contracts.WindowsFacade;
 using ConfigSourceNupkgModPreserver.Contracts.WppTargetsFileHandling;
@@ -39,6 +40,8 @@ namespace ConfigSourceNupkgModPreserver
         private IVisualStudioFacade _visualStudioFacade;
         private IWindowsShellFacade _windowsShellFacade;
         private NuGetFacade _nuGetFacade;
+        private IPrompter _prompter;
+
         private Orchestrator _orchestrator;
 
         public const string PackageGuidString = "36fa07a8-d764-4bbc-93af-858e6584bea8";
@@ -55,12 +58,14 @@ namespace ConfigSourceNupkgModPreserver
 
             _visualStudioFacade = new VisualStudioFacade(_vsUiShell, _vsOutputWindow);
             _windowsShellFacade = new WindowsShellFacade();
-            _merger = new Merger(_visualStudioFacade, _windowsShellFacade);
+            _merger = new Merger(_windowsShellFacade);
             _nuGetFacade = new NuGetFacade(_packageInstallerProjectEvents);
             _fileSystemFacade = new FileSystemFacade();
             _wppTargetsFilesReader = new WppTargetsFilesReader(_fileSystemFacade);
             _wppTargetsFileParser = new WppTargetsXmlParser();
-            _orchestrator = new Orchestrator(_fileSystemFacade, _wppTargetsFilesReader, _wppTargetsFileParser, _merger, _visualStudioFacade);
+            _prompter = new Prompter(_visualStudioFacade);
+
+            _orchestrator = new Orchestrator(_fileSystemFacade, _wppTargetsFilesReader, _wppTargetsFileParser, _merger, _visualStudioFacade, _prompter);
 
             _nuGetFacade.BindNuGetPackageEvents(RunMerge);
         }
